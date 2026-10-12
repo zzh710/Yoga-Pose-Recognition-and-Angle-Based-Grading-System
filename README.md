@@ -1,34 +1,42 @@
 # Yoga Pose Recognition and Angle-Based Grading System
 
-A computer vision research project that integrates deep learning-based yoga pose classification, human pose estimation, and geometric joint-angle analysis to evaluate yoga posture quality and provide interpretable feedback.
+An AI-powered computer vision research project that combines deep learning-based yoga pose classification, human pose estimation, and geometric joint-angle analysis to evaluate yoga postures and generate interpretable feedback.
 
-**Project Type:** Academic Research Project  
-**Institution:** Yuan Ze University, Taiwan  
-**Publication:** [Read the Project Paper (PDF)](paper/書審專題.pdf)
+<p align="center">
+  <a href="paper/Yoga-Pose-Grading-System.pdf">
+    <strong>Read the Full Research Paper (PDF)</strong>
+  </a>
+</p>
 
----
+![Python](https://img.shields.io/badge/Python-3.8%2B-blue)
+![PyTorch](https://img.shields.io/badge/PyTorch-ResNet--18-EE4C2C)
+![MediaPipe](https://img.shields.io/badge/MediaPipe-Pose-0097A7)
+![OpenCV](https://img.shields.io/badge/OpenCV-Computer%20Vision-5C3EE8)
+![Research](https://img.shields.io/badge/Project-Academic%20Research-6A5ACD)
 
 ## Overview
 
-Yoga posture assessment traditionally relies on instructor observation, which can be difficult to scale in remote learning and home-practice environments. This project explores an automated approach to yoga pose recognition and posture evaluation using computer vision and deep learning.
+Accurate yoga posture is essential for effective practice, yet traditional assessment often depends on instructor observation. This can make consistent feedback difficult to obtain in home-based and remote learning environments.
 
-The proposed system combines **ResNet-18** for RGB-based yoga pose classification with **MediaPipe Pose** for skeletal landmark detection. By comparing detected joint angles against reference angles for each yoga pose, the system calculates posture scores and generates visual and numerical feedback.
+This project investigates an automated approach to yoga pose recognition and posture assessment by integrating RGB-based image classification with skeletal landmark analysis.
 
-The research focuses on making posture assessment more interpretable by combining pose classification with geometric analysis rather than relying solely on classification labels.
+The system combines **ResNet-18** for yoga pose classification and **MediaPipe Pose** for human landmark detection. By comparing detected joint angles with reference angles for each pose, it estimates posture quality and provides visual and numerical feedback.
+
+The goal is to bridge the gap between pose recognition and posture evaluation through an interpretable, geometry-based scoring mechanism.
 
 ## Key Features
 
-- **Yoga Pose Classification:** Uses a ResNet-18 convolutional neural network trained on a curated subset of the Yoga-82 dataset.
-- **Human Pose Estimation:** Uses MediaPipe Pose to detect 33 anatomical landmarks.
-- **Joint-Angle Analysis:** Calculates geometric angles from skeletal keypoints and compares them with reference posture templates.
-- **Non-Linear Posture Scoring:** Applies different penalties according to the magnitude of angular deviations.
+- **Deep Learning-Based Pose Recognition:** Classifies 10 yoga poses using a ResNet-18 model trained on a curated subset of the Yoga-82 dataset.
+- **Human Pose Estimation:** Extracts 33 anatomical landmarks using MediaPipe Pose.
+- **Geometric Joint-Angle Analysis:** Measures selected body and joint angles from skeletal coordinates.
+- **Non-Linear Posture Scoring:** Applies tiered penalties based on deviations from reference angles.
 - **Visual Feedback:** Uses OpenCV to display predicted pose labels, skeletal landmarks, joint angles, and posture scores.
-- **Structured Result Logging:** Records frame-level classification results and posture evaluation metrics in CSV format.
-- **Segment-Level Evaluation:** Uses majority voting across video frames to improve the consistency of pose classification.
+- **Structured Evaluation Records:** Exports frame-level predictions and posture metrics to CSV files.
+- **Temporal Prediction Aggregation:** Applies segment-level majority voting to improve classification consistency across video frames.
 
 ## System Architecture
 
-The proposed pipeline consists of six main stages:
+The proposed system follows a sequential processing pipeline:
 
 ```text
 Video Input
@@ -42,7 +50,7 @@ MediaPipe Pose
     |
     v
 ResNet-18
-Yoga Pose Classification
+RGB Pose Classification
     |
     v
 Reference Angle Comparison
@@ -51,40 +59,40 @@ Reference Angle Comparison
 Non-Linear Posture Scoring
     |
     v
-OpenCV Visualization
-    +
-CSV Result Logging
+Visual Feedback and CSV Logging
 ```
 
-### Technologies
+### Technology Stack
 
-| Technology | Role |
+| Technology | Purpose |
 |---|---|
 | Python | Main programming language |
 | PyTorch | Deep learning framework |
 | ResNet-18 | RGB-based yoga pose classification |
-| MediaPipe Pose | Human skeletal landmark detection |
-| OpenCV | Video processing and visual feedback |
-| NumPy | Numerical and geometric computation |
-| CSV | Structured evaluation result storage |
+| MediaPipe Pose | Skeletal landmark detection |
+| OpenCV | Video processing and visual annotation |
+| NumPy | Numerical and geometric calculations |
+| CSV | Structured evaluation data |
 
 ## Methodology
 
 ### 1. Yoga Pose Classification
 
-A ResNet-18 model was trained using a curated subset of the Yoga-82 dataset, which contains more than 28,000 pose images. The study selected 10 yoga pose categories and incorporated approximately 200 additional images per pose for fine-tuning.
+The study uses a ResNet-18 convolutional neural network to classify yoga poses from RGB images.
 
-Rotation and horizontal-flipping augmentation were used to improve the model's ability to generalize across different image orientations.
+The training process uses a curated subset of the Yoga-82 dataset, which contains more than 28,000 images. Ten pose categories were selected for the project, with approximately 200 additional images per pose collected for fine-tuning.
 
-### 2. Skeletal Landmark Detection
+Rotation and horizontal-flipping augmentation were applied to improve generalization across variations in image orientation.
 
-MediaPipe Pose extracts 33 anatomical landmarks, including the shoulders, elbows, hips, knees, and ankles.
+### 2. Human Pose Estimation
 
-These landmarks provide the coordinates needed for joint-angle calculation and posture evaluation. The paper reports that MediaPipe Pose can operate at over 25 FPS on standard CPUs under the evaluated conditions.
+MediaPipe Pose detects 33 anatomical landmarks, including the shoulders, elbows, hips, knees, and ankles.
+
+These landmarks provide the spatial information required for geometric angle calculation and posture evaluation. The research reports processing speeds exceeding 25 FPS on standard CPUs under the evaluated conditions.
 
 ### 3. Geometric Joint-Angle Analysis
 
-The system calculates joint angles from three skeletal keypoints. For points \(A\), \(B\), and \(C\), the angle at \(B\) is calculated using the dot product of vectors \(\mathbf{BA}\) and \(\mathbf{BC}\):
+The system calculates angles using three skeletal keypoints. Given points \(A\), \(B\), and \(C\), the angle at point \(B\) is calculated as:
 
 \[
 \theta=\arccos\left(
@@ -93,39 +101,51 @@ The system calculates joint angles from three skeletal keypoints. For points \(A
 \right)
 \]
 
-Four angle features are used in the posture evaluation process:
+The study defines four key angle features:
 
 - `body_line_angle`
 - `knee_angle`
 - `bent_leg_angle`
 - `shoulder_angle`
 
-The detected angles are compared with reference values derived from instructional yoga videos.
+Detected angles are compared against reference values derived from instructional yoga videos.
 
 ### 4. Non-Linear Posture Scoring
 
-The system assigns scores based on the angular deviation between the detected posture and its reference angles.
+To quantify posture alignment, the system calculates angular deviations between detected joint angles and their corresponding reference values.
+
+Let \(e\) represent the absolute angular error in degrees. The scoring function is:
+
+\[
+S(e)=
+\begin{cases}
+100-0.5e, & 0\le e\le20\\
+90-(e-20), & 20<e\le40\\
+70-2(e-40), & 40<e\le60\\
+0, & e>60
+\end{cases}
+\]
 
 | Angular Error | Scoring Rule | Score Range |
 |---|---|---|
-| ≤ 20° | \(100-0.5e\) | 90–100 |
+| 0°–20° | \(100-0.5e\) | 90–100 |
 | 20°–40° | \(90-(e-20)\) | 70–90 |
 | 40°–60° | \(70-2(e-40)\) | 30–70 |
-| > 60° | 0 | 0 |
+| Above 60° | 0 | 0 |
 
-Here, \(e\) represents the absolute angular error in degrees.
+Individual angle scores are combined to estimate the overall posture quality of each frame. This approach is designed to tolerate small deviations while penalizing larger misalignments more strongly.
 
-Smaller deviations receive relatively mild penalties, while larger deviations result in more substantial deductions. Individual angle scores are combined to produce an overall frame-level posture score.
+The resulting score is a heuristic measure of geometric alignment rather than a clinical assessment or a universal measure of yoga proficiency.
 
 ### 5. Visual Feedback and Result Logging
 
-OpenCV is used to annotate video frames with the predicted pose label, skeletal landmarks, measured angles, angular deviations, and posture scores.
+The system uses OpenCV to annotate video frames with pose predictions, skeletal landmarks, measured joint angles, angular deviations, and posture scores.
 
-The system also records frame-level evaluation results in CSV format, supporting further analysis of classification consistency and posture quality.
+Frame-level evaluation data are also recorded in CSV format, allowing classification results and posture metrics to be reviewed after processing.
 
-## Supported Yoga Poses
+## Evaluated Yoga Poses
 
-The study evaluates the following 10 yoga pose categories:
+The study evaluates 10 yoga pose categories:
 
 1. Bridge Pose
 2. Downward-Facing Dog
@@ -140,9 +160,9 @@ The study evaluates the following 10 yoga pose categories:
 
 ## Experimental Results
 
-The paper reports the following classification results:
+The research reports the following results for pose classification and evaluation:
 
-| Metric | Result |
+| Evaluation Metric | Result |
 |---|---:|
 | Training Accuracy | 91.5% |
 | Validation Accuracy | 82.0% |
@@ -152,41 +172,45 @@ The paper reports the following classification results:
 
 The ResNet-18 model achieved 91.5% training accuracy and 82.0% validation accuracy after 20 epochs.
 
-To reduce frame-level prediction noise, the system applied segment-level majority voting, assigning each video segment the most frequently predicted pose label. The resulting segment-level classification accuracy was 85.1% across the 10 evaluated yoga poses.
+To reduce frame-level prediction noise, segment-level majority voting was applied. Each video segment was assigned the most frequently predicted pose label, achieving a reported segment-level classification accuracy of 85.1% across the 10 evaluated categories.
 
-These results demonstrate the potential of combining RGB-based pose classification with landmark-based geometric evaluation in an interpretable yoga posture assessment framework.
+These findings demonstrate the potential of combining deep learning-based image classification with geometric posture evaluation.
 
-*Reported results are taken from the project paper and have not been independently reproduced for this repository.*
+*All reported metrics are taken from the research paper and have not been independently reproduced in this repository.*
 
-## Challenges and Design Considerations
+## Challenges and Technical Considerations
 
-The research discusses several challenges encountered during system development:
+The research addresses several challenges in practical yoga pose assessment:
 
-- **Pose Estimation Efficiency:** MediaPipe Pose was selected for its practical CPU performance, accessible Python API, and 33-landmark output.
-- **Scoring Sensitivity:** A non-linear penalty function was introduced to better distinguish minor angular deviations from larger posture misalignments.
-- **Symmetric Pose Classification:** Mirrored poses can be difficult to distinguish due to left-right symmetry and camera perspective.
-- **Camera and Scale Variations:** Differences in recording distance and body proportions can introduce classification noise. Anchor-based normalization was explored to improve consistency.
+- **Inference Efficiency:** MediaPipe Pose was selected for its practical CPU performance and accessible Python interface.
+- **Scoring Sensitivity:** A non-linear penalty function was designed to distinguish small deviations from larger alignment errors.
+- **Symmetric Pose Confusion:** Mirrored poses may produce similar visual patterns, making classification more challenging.
+- **Camera and Scale Variations:** Changes in camera distance, perspective, and apparent body proportions can introduce classification errors.
+
+The study also discusses data augmentation and anchor-based pose normalization as approaches to improving classification consistency.
 
 ## Research Paper
 
-The full paper documents the system methodology, implementation, evaluation results, output examples, and discussion of technical challenges.
+The full paper provides further details on the methodology, system design, experimental evaluation, visual outputs, and technical challenges.
 
-**[Read the Full Paper (PDF)](paper/書審專題.pdf)**
+**[Read the Full Paper — Yoga Pose Recognition and Angle-Based Grading System](paper/Yoga-Pose-Grading-System.pdf)**
 
 ## Repository Scope
 
-This repository currently serves as a **research documentation and project portfolio repository**. It contains the project paper rather than a complete, reproducible software implementation.
+This repository is intended as a **research documentation and project portfolio page**.
 
-Source code, trained model weights, datasets, and environment configuration files are not included. Consequently, the reported results should be understood as results documented in the paper, not as results independently reproduced from this repository.
+The published paper is provided as the primary project artifact. Source code, trained model weights, datasets, and environment configuration files are not included in this repository.
 
-## Authors and Acknowledgements
+As a result, the reported experimental results are documented research findings rather than independently reproducible results from the public repository.
+
+## Authors and Contributions
 
 - **Chen-Hao Chan (Oscar Chan)** — Project Lead and Co-Author
 - **Ping-Chen Chiang** — Co-Author
 - **Yu-Xian Chen** — Co-Author
 - **Prof. Huang-Chia Shih** — Academic Advisor / Corresponding Author
 
-Department of Electrical Engineering, Yuan Ze University, Taoyuan City, Taiwan.
+**Affiliation:** Department of Electrical Engineering, Yuan Ze University, Taoyuan City, Taiwan.
 
 ## Citation
 
@@ -203,4 +227,4 @@ If you reference this work, please cite the project paper:
 
 ---
 
-*This project was developed as an academic research project on computer vision, deep learning, human pose estimation, and geometric posture evaluation.*
+*Research focus: Computer Vision · Deep Learning · Human Pose Estimation · Geometric Posture Evaluation*
